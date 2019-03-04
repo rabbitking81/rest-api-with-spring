@@ -31,6 +31,30 @@ public class EventControllerTests {
 
     @Test
     public void createEvent() throws Exception {
+        EventDto event = EventDto.builder()
+            .name("Spring")
+            .description("REST API Development with Spring")
+            .beginEnrollmentDateTime(LocalDateTime.of(2019, 3, 4, 12, 0, 0))
+            .closeEnrollmentDateTime(LocalDateTime.of(2019, 3, 5, 12, 0, 0))
+            .beginEventDateTime(LocalDateTime.of(2019, 3, 6, 12, 0, 0))
+            .endEventDateTime(LocalDateTime.of(2019, 3, 7, 12, 0, 0))
+            .location("강남역")
+            .build();
+
+        mockMvc.perform(post("/api/events")
+            .contentType(MediaType.APPLICATION_JSON_UTF8)
+            .accept(MediaTypes.HAL_JSON)
+            .content(objectMapper.writeValueAsString(event))
+        )
+            .andDo(print())
+            .andExpect(status().isCreated())
+            .andExpect(jsonPath("id").exists())
+            .andExpect(jsonPath("id").value(Matchers.not(100)))
+            .andExpect(jsonPath("free").value(Matchers.not(true)));
+    }
+
+    @Test
+    public void createEvent_Bad_Request() throws Exception {
         Event event = Event.builder()
             .id(100)
             .name("Spring")
@@ -53,9 +77,7 @@ public class EventControllerTests {
             .content(objectMapper.writeValueAsString(event))
         )
             .andDo(print())
-            .andExpect(status().isCreated())
-            .andExpect(jsonPath("id").exists())
-            .andExpect(jsonPath("id").value(Matchers.not(100)))
-            .andExpect(jsonPath("free").value(Matchers.not(true)));
+            .andExpect(status().isBadRequest())
+        ;
     }
 }

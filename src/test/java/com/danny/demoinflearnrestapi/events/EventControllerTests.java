@@ -2,7 +2,6 @@ package com.danny.demoinflearnrestapi.events;
 
 import com.danny.demoinflearnrestapi.common.TestDescription;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.hamcrest.Matchers;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -59,6 +58,9 @@ public class EventControllerTests {
             .andExpect(jsonPath("free").value(false))
             .andExpect(jsonPath("offline").value(true))
             .andExpect(jsonPath("eventStatus").value(EventStatus.DRAFT.name()))
+            .andExpect(jsonPath("_link.self").exists())
+            .andExpect(jsonPath("_link.query-events").exists())
+            .andExpect(jsonPath("_link.update-event").exists())
         ;
     }
 

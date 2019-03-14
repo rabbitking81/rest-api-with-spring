@@ -234,12 +234,50 @@ public class EventControllerTests {
         ;
     }
 
-    private void generateEvent(int index) {
+    @Test
+    @TestDescription("기존의 이벤트를 하나 조회하기")
+    public void getEvent() throws Exception {
+        Event event = this.generateEvent(100);
+
+        this.mockMvc.perform(get("/api/events/{id}", event.getId())
+            .contentType(MediaType.APPLICATION_JSON_UTF8)
+            .accept(MediaTypes.HAL_JSON)
+        )
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("name").exists())
+            .andExpect(jsonPath("id").exists())
+            .andExpect(jsonPath("_links.self").exists())
+            .andExpect(jsonPath("_links.profile").exists())
+            .andDo(document("get-event",
+                links(
+                    linkWithRel("self").description("link to self"),
+                    linkWithRel("profile").description("link to profile")
+                ),
+                requestHeaders(
+                    headerWithName(HttpHeaders.ACCEPT).description("accept header"),
+                    headerWithName(HttpHeaders.CONTENT_TYPE).description("content type header")
+                )
+            ))
+        ;
+    }
+
+    @Test
+    @TestDescription("없는 이벤트는 조회했을 때 404 응답받기")
+    public void getEvent404() throws Exception {
+        this.mockMvc.perform(get("/api/event/11111")
+            .contentType(MediaType.APPLICATION_JSON_UTF8)
+            .accept(MediaTypes.HAL_JSON)
+        )
+            .andExpect(status().isNotFound())
+        ;
+    }
+
+    private Event generateEvent(int index) {
         Event event = Event.builder()
             .name("event" + index)
             .description("test event")
             .build();
 
-        this.eventRepository.save(event);
+        return this.eventRepository.save(event);
     }
 }

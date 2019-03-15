@@ -36,12 +36,12 @@ public class EventController {
 
     @PostMapping
     public ResponseEntity createEvent(@RequestBody @Valid EventDto eventDto, Errors errors) {
-        if(errors.hasErrors()) {
+        if (errors.hasErrors()) {
             return badRequest(errors);
         }
 
         eventValidator.validate(eventDto, errors);
-        if(errors.hasErrors()) {
+        if (errors.hasErrors()) {
             return badRequest(errors);
         }
 
@@ -70,13 +70,42 @@ public class EventController {
     public ResponseEntity getEvent(@PathVariable Integer id) {
         Optional<Event> optionalEvent = this.eventRepository.findById(id);
 
-        if(!optionalEvent.isPresent()) {
+        if (!optionalEvent.isPresent()) {
             return ResponseEntity.notFound().build();
         }
 
         Event event = optionalEvent.get();
         EventResource eventResource = new EventResource(event);
         eventResource.add(new Link("/docs/index.html#resources-get-event").withRel("profile"));
+        return ResponseEntity.ok(eventResource);
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity updateEvent(@PathVariable Integer id,
+                                      @RequestBody @Valid EventDto eventDto,
+                                      Errors errors) {
+        Optional<Event> optionalEvent = this.eventRepository.findById(id);
+
+        if (!optionalEvent.isPresent()) {
+            return ResponseEntity.notFound().build();
+        }
+
+        if (errors.hasErrors()) {
+            return badRequest(errors);
+        }
+
+        this.eventValidator.validate(eventDto, errors);
+
+        if (errors.hasErrors()) {
+            return badRequest(errors);
+        }
+
+        Event existingEvent = optionalEvent.get();
+        this.modelMapper.map(eventDto, existingEvent);
+        this.eventRepository.save(existingEvent);
+
+        EventResource eventResource = new EventResource(existingEvent);
+        eventResource.add(new Link("/docs/index.html#resources-update-event").withRel("profile"));
         return ResponseEntity.ok(eventResource);
     }
 

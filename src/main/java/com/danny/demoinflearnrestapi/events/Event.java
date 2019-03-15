@@ -1,15 +1,21 @@
 package com.danny.demoinflearnrestapi.events;
 
+import com.danny.demoinflearnrestapi.accounts.Account;
 import lombok.*;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
 
-@Builder @AllArgsConstructor @NoArgsConstructor
-@Getter @Setter @EqualsAndHashCode(of = "id")
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor
+@Getter
+@Setter
+@EqualsAndHashCode(of = "id")
 @Entity
 public class Event {
-    @Id @GeneratedValue
+    @Id
+    @GeneratedValue
     private Integer id;
     private String name;
     private String description;
@@ -25,6 +31,8 @@ public class Event {
     private boolean free;
     @Enumerated(EnumType.STRING)
     private EventStatus eventStatus = EventStatus.DRAFT;
+    @ManyToOne
+    private Account manager;
 
     public void update() {
         this.free = this.basePrice == 0 && this.maxPrice == 0;
